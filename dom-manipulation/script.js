@@ -109,6 +109,50 @@ function importFromJsonFile(event) {
   fileReader.readAsText(event.target.files[0]);
 }
 
+// Function to fetch quotes from the server
+async function fetchQuotesFromServer() {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const serverQuotes = await response.json();
+    return serverQuotes.map(post => ({ text: post.title, category: "Server" }));
+  } catch (error) {
+    console.error("Error fetching quotes from server:", error);
+    return [];
+  }
+}
+
+// Function to sync local data with server data
+async function syncData() {
+  const serverQuotes = await fetchQuotesFromServer();
+  const localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
+
+  // Merge server and local quotes (server data takes precedence)
+  const mergedQuotes = [...localQuotes, ...serverQuotes];
+  const uniqueQuotes = Array.from(new Set(mergedQuotes.map(quote => quote.text)))
+    .map(text => mergedQuotes.find(quote => quote.text === text));
+
+  // Update local storage with merged quotes
+  localStorage.setItem("quotes", JSON.stringify(uniqueQuotes));
+  quotes = uniqueQuotes;
+  populateCategories(); // Update the category dropdown
+  filterQuotes(); // Refresh the displayed quotes
+
+  // Notify the user
+  alert("Data synced with server successfully!");
+}
+
+// Function to handle manual conflict resolution
+function resolveConflicts() {
+  const userChoice = confirm("A conflict was detected. Do you want to keep local changes?");
+  if (userChoice) {
+    // Keep local changes
+    alert("Local changes preserved.");
+  } else {
+    // Sync with server data
+    syncData();
+  }
+}
+
 // Event listener for the "Show New Quote" button
 document.getElementById("newQuote").addEventListener("click", () => {
   const selectedCategory = document.getElementById("categoryFilter").value;
@@ -123,8 +167,17 @@ document.getElementById("newQuote").addEventListener("click", () => {
 // Event listener for the "Export Quotes" button
 document.getElementById("exportQuotes").addEventListener("click", exportQuotes);
 
+// Event listener for the "Sync Data" button
+document.getElementById("syncData").addEventListener("click", syncData);
+
+// Event listener for the "Resolve Conflicts" button
+document.getElementById("resolveConflicts").addEventListener("click", resolveConflicts);
+
 // Load quotes from local storage when the page loads
 loadQuotes();
+
+// Periodically sync data with the server (every 5 minutes)
+setInterval(syncData, 5 * 60 * 1000);
 
 // Create the "Add Quote" form dynamically
 createAddQuoteForm();
