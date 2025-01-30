@@ -13,6 +13,31 @@ let quotes = [
     quoteDisplay.innerHTML = `<strong>${randomQuote.text}</strong> <br> <em>${randomQuote.category}</em>`;
   }
   
+  // Function to dynamically create the "Add Quote" form
+  function createAddQuoteForm() {
+    const formContainer = document.createElement("div");
+  
+    const quoteInput = document.createElement("input");
+    quoteInput.type = "text";
+    quoteInput.id = "newQuoteText";
+    quoteInput.placeholder = "Enter a new quote";
+  
+    const categoryInput = document.createElement("input");
+    categoryInput.type = "text";
+    categoryInput.id = "newQuoteCategory";
+    categoryInput.placeholder = "Enter quote category";
+  
+    const addButton = document.createElement("button");
+    addButton.textContent = "Add Quote";
+    addButton.onclick = addQuote;
+  
+    formContainer.appendChild(quoteInput);
+    formContainer.appendChild(categoryInput);
+    formContainer.appendChild(addButton);
+  
+    document.body.appendChild(formContainer);
+  }
+  
   // Function to add a new quote
   function addQuote() {
     const newQuoteText = document.getElementById("newQuoteText").value;
@@ -23,6 +48,7 @@ let quotes = [
       document.getElementById("newQuoteText").value = "";
       document.getElementById("newQuoteCategory").value = "";
       alert("Quote added successfully!");
+      showRandomQuote(); // Refresh the displayed quote
     } else {
       alert("Please fill in both fields.");
     }
@@ -33,3 +59,6 @@ let quotes = [
   
   // Display a random quote when the page loads
   showRandomQuote();
+  
+  // Create the "Add Quote" form dynamically
+  createAddQuoteForm();

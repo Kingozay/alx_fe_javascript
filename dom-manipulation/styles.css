@@ -23,3 +23,8 @@ body {
     margin: 5px;
     width: 200px;
   }
+  
+  /* Style for the dynamically created form */
+  div {
+    margin-top: 20px;
+  }
