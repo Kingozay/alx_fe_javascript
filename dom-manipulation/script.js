@@ -77,10 +77,10 @@ function addQuote() {
     saveQuotes(); // Save quotes to local storage
     populateCategories(); // Update the category dropdown
     postQuoteToServer(newQuote); // Post the new quote to the server
-    alert("Quote added successfully!");
+    showNotification("Quote added successfully!");
     filterQuotes(); // Refresh the displayed quotes
   } else {
-    alert("Please fill in both fields.");
+    showNotification("Please fill in both fields.");
   }
 }
 
@@ -127,7 +127,7 @@ function importFromJsonFile(event) {
     quotes.push(...importedQuotes);
     saveQuotes(); // Save imported quotes to local storage
     populateCategories(); // Update the category dropdown
-    alert("Quotes imported successfully!");
+    showNotification("Quotes imported successfully!");
     filterQuotes(); // Refresh the displayed quotes
   };
   fileReader.readAsText(event.target.files[0]);
@@ -147,22 +147,27 @@ async function fetchQuotesFromServer() {
 
 // Function to sync quotes between local storage and the server
 async function syncQuotes() {
-  const serverQuotes = await fetchQuotesFromServer();
-  const localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
+  try {
+    const serverQuotes = await fetchQuotesFromServer();
+    const localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
 
-  // Merge server and local quotes (server data takes precedence)
-  const mergedQuotes = [...localQuotes, ...serverQuotes];
-  const uniqueQuotes = Array.from(new Set(mergedQuotes.map(quote => quote.text)))
-    .map(text => mergedQuotes.find(quote => quote.text === text));
+    // Merge server and local quotes (server data takes precedence)
+    const mergedQuotes = [...localQuotes, ...serverQuotes];
+    const uniqueQuotes = Array.from(new Set(mergedQuotes.map(quote => quote.text)))
+      .map(text => mergedQuotes.find(quote => quote.text === text));
 
-  // Update local storage with merged quotes
-  localStorage.setItem("quotes", JSON.stringify(uniqueQuotes));
-  quotes = uniqueQuotes;
-  populateCategories(); // Update the category dropdown
-  filterQuotes(); // Refresh the displayed quotes
+    // Update local storage with merged quotes
+    localStorage.setItem("quotes", JSON.stringify(uniqueQuotes));
+    quotes = uniqueQuotes;
+    populateCategories(); // Update the category dropdown
+    filterQuotes(); // Refresh the displayed quotes
 
-  // Notify the user
-  alert("Quotes synced with server successfully!");
+    // Notify the user
+    showNotification("Quotes synced with server!");
+  } catch (error) {
+    console.error("Error syncing quotes:", error);
+    showNotification("Failed to sync quotes with server.");
+  }
 }
 
 // Function to handle manual conflict resolution
@@ -170,11 +175,25 @@ function resolveConflicts() {
   const userChoice = confirm("A conflict was detected. Do you want to keep local changes?");
   if (userChoice) {
     // Keep local changes
-    alert("Local changes preserved.");
+    showNotification("Local changes preserved.");
   } else {
     // Sync with server data
     syncQuotes();
   }
+}
+
+// Function to show notifications
+function showNotification(message) {
+  const notification = document.createElement("div");
+  notification.className = "notification";
+  notification.textContent = message;
+
+  document.body.appendChild(notification);
+
+  // Remove the notification after 3 seconds
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
 }
 
 // Event listener for the "Show New Quote" button
