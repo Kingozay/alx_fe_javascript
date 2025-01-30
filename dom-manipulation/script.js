@@ -145,8 +145,8 @@ async function fetchQuotesFromServer() {
   }
 }
 
-// Function to sync local data with server data
-async function syncData() {
+// Function to sync quotes between local storage and the server
+async function syncQuotes() {
   const serverQuotes = await fetchQuotesFromServer();
   const localQuotes = JSON.parse(localStorage.getItem("quotes")) || [];
 
@@ -162,7 +162,7 @@ async function syncData() {
   filterQuotes(); // Refresh the displayed quotes
 
   // Notify the user
-  alert("Data synced with server successfully!");
+  alert("Quotes synced with server successfully!");
 }
 
 // Function to handle manual conflict resolution
@@ -173,7 +173,7 @@ function resolveConflicts() {
     alert("Local changes preserved.");
   } else {
     // Sync with server data
-    syncData();
+    syncQuotes();
   }
 }
 
@@ -191,8 +191,8 @@ document.getElementById("newQuote").addEventListener("click", () => {
 // Event listener for the "Export Quotes" button
 document.getElementById("exportQuotes").addEventListener("click", exportQuotes);
 
-// Event listener for the "Sync Data" button
-document.getElementById("syncData").addEventListener("click", syncData);
+// Event listener for the "Sync Quotes" button
+document.getElementById("syncQuotes").addEventListener("click", syncQuotes);
 
 // Event listener for the "Resolve Conflicts" button
 document.getElementById("resolveConflicts").addEventListener("click", resolveConflicts);
@@ -200,8 +200,8 @@ document.getElementById("resolveConflicts").addEventListener("click", resolveCon
 // Load quotes from local storage when the page loads
 loadQuotes();
 
-// Periodically sync data with the server (every 5 minutes)
-setInterval(syncData, 5 * 60 * 1000);
+// Periodically sync quotes with the server (every 5 minutes)
+setInterval(syncQuotes, 5 * 60 * 1000);
 
 // Create the "Add Quote" form dynamically
 createAddQuoteForm();
