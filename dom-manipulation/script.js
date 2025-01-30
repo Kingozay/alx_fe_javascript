@@ -70,15 +70,39 @@ function addQuote() {
   const newQuoteCategory = document.getElementById("newQuoteCategory").value;
 
   if (newQuoteText && newQuoteCategory) {
-    quotes.push({ text: newQuoteText, category: newQuoteCategory });
+    const newQuote = { text: newQuoteText, category: newQuoteCategory };
+    quotes.push(newQuote);
     document.getElementById("newQuoteText").value = "";
     document.getElementById("newQuoteCategory").value = "";
     saveQuotes(); // Save quotes to local storage
     populateCategories(); // Update the category dropdown
+    postQuoteToServer(newQuote); // Post the new quote to the server
     alert("Quote added successfully!");
     filterQuotes(); // Refresh the displayed quotes
   } else {
     alert("Please fill in both fields.");
+  }
+}
+
+// Function to post a new quote to the server
+async function postQuoteToServer(quote) {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST", // Use POST method
+      headers: {
+        "Content-Type": "application/json", // Set content type to JSON
+      },
+      body: JSON.stringify(quote), // Send the quote as JSON
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to post quote to server");
+    }
+
+    const data = await response.json();
+    console.log("Quote posted to server:", data);
+  } catch (error) {
+    console.error("Error posting quote to server:", error);
   }
 }
 
